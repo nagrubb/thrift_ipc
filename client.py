@@ -20,13 +20,13 @@ class EventHandlerHandler:
     self.log = {}
 
   def event(self, evt):
-    print "event()"
+    print "event({})".format(evt)
 
 def server():
   handler = EventHandlerHandler()
   processor = EventHandler.Processor(handler)
   transport = TSocket.TServerSocket(port=PORT)
-  tfactory = TTransport.TBufferedTransportFactory()
+  tfactory = TTransport.TFramedTransportFactory()
   pfactory = TCompactProtocol.TCompactProtocolFactory()
 
   server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
