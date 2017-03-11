@@ -4,15 +4,19 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
 
 file(GLOB GEN_SOURCES
-  gen-cpp/Example.h
-  gen-cpp/Example.cpp
-  gen-cpp/EventHandler.h
-  gen-cpp/EventHandler.cpp
-  gen-cpp/example_constants.h
-  gen-cpp/example_constants.cpp
-  gen-cpp/example_types.h
-  gen-cpp/example_types.cpp
+  ${CMAKE_BINARY_DIR}/gen-cpp/Example.h
+  ${CMAKE_BINARY_DIR}/gen-cpp/Example.cpp
+  ${CMAKE_BINARY_DIR}/gen-cpp/EventHandler.h
+  ${CMAKE_BINARY_DIR}/gen-cpp/EventHandler.cpp
+  ${CMAKE_BINARY_DIR}/gen-cpp/example_constants.h
+  ${CMAKE_BINARY_DIR}/gen-cpp/example_constants.cpp
+  ${CMAKE_BINARY_DIR}/gen-cpp/example_types.h
+  ${CMAKE_BINARY_DIR}/gen-cpp/example_types.cpp
 )
+
+execute_process(COMMAND thrift --gen cpp ${CMAKE_SOURCE_DIR}/example.thrift)
+execute_process(COMMAND thrift --gen py ${CMAKE_SOURCE_DIR}/example.thrift)
+include_directories(${CMAKE_BINARY_DIR})
 
 add_executable(server
   server.cpp

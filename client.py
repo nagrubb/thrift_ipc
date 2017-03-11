@@ -4,7 +4,7 @@ import glob
 import time
 import threading
 
-sys.path.append('gen-py')
+sys.path.append('build/gen-py')
 
 from example import Example, EventHandler
 
