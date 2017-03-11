@@ -48,34 +48,52 @@ private:
   std::list<boost::shared_ptr<T> >m_clients;
 };
 
-template<class T1, class T2>
-class thrift_server : public Runnable {
+class thrift_application {
 public:
 
-  thrift_server(uint16_t port, uint16_t io_thread_count, T1 *iface) :
-    m_port(port),
-    m_handler(iface),
-    m_processor(new T2(m_handler)),
-    m_transport_factory(new TBufferedTransportFactory()),
-    m_protocol_factory(new TCompactProtocolFactory()),
+  thrift_application(uint16_t io_thread_count) :
     m_thread_manager(ThreadManager::newSimpleThreadManager(io_thread_count)),
     m_thread_factory(new PosixThreadFactory()) {
     m_thread_manager->threadFactory(m_thread_factory);
     m_thread_manager->start();
   }
 
-  virtual ~thrift_server(void) {}
+  ~thrift_application(void) {}
 
-  bool add_and_start_worker_thread(Runnable *runnable) {
-    boost::shared_ptr<Runnable> wrapper(runnable);
-    boost::shared_ptr<Thread>   thread(m_thread_factory->newThread(wrapper));
+  bool add_and_start_runnable(boost::shared_ptr<Runnable> &runnable) {
+    boost::shared_ptr<Thread> thread(m_thread_factory->newThread(runnable));
     m_threads.push_back(thread);
     thread->start();
     return true;
   }
 
+  boost::shared_ptr<ThreadManager>& get_thread_manager() {
+    return m_thread_manager;
+  }
+
+private:
+
+  boost::shared_ptr<ThreadManager>m_thread_manager;
+  boost::shared_ptr<PosixThreadFactory>m_thread_factory;
+  std::list<boost::shared_ptr<Thread> >m_threads;
+};
+
+template<class T1, class T2>
+class thrift_server : public Runnable {
+public:
+
+  thrift_server(boost::shared_ptr<thrift_application> &application, uint16_t port, boost::shared_ptr<T1> &handler) :
+    m_port(port),
+    m_handler(handler),
+    m_processor(new T2(m_handler)),
+    m_transport_factory(new TBufferedTransportFactory()),
+    m_protocol_factory(new TCompactProtocolFactory()),
+    m_application(application) {}
+
+  virtual ~thrift_server(void) {}
+
   virtual void run() {
-    TNonblockingServer server(m_processor, m_protocol_factory, m_port, m_thread_manager);
+    TNonblockingServer server(m_processor, m_protocol_factory, m_port, m_application->get_thread_manager());
 
     server.serve();
   }
@@ -83,11 +101,9 @@ public:
 private:
 
   uint16_t m_port;
-  boost::shared_ptr<T1>m_handler;
+  boost::shared_ptr<T1> &m_handler;
   boost::shared_ptr<TProcessor>m_processor;
   boost::shared_ptr<TTransportFactory>m_transport_factory;
   boost::shared_ptr<TProtocolFactory>m_protocol_factory;
-  boost::shared_ptr<ThreadManager>m_thread_manager;
-  boost::shared_ptr<PosixThreadFactory>m_thread_factory;
-  std::list<boost::shared_ptr<Thread> >m_threads;
+  boost::shared_ptr<thrift_application> &m_application;
 };

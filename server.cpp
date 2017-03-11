@@ -37,28 +37,20 @@ private:
   int m_clientNumber  = 0;
 };
 
-class MainThread : public Runnable {
-public:
-
-  MainThread() {}
-
-  virtual ~MainThread() {}
-
-  virtual void run() {
-    while (true) {
-      printf("Doing hardwork!\n");
-      sleep(5);
-    }
-  }
-};
-
 int main(int argc, char **argv) {
   uint16_t port            = 9090;
   uint16_t io_thread_count = 1;
 
-  boost::shared_ptr<thrift_server<ExampleIf, ExampleProcessor> > service(
-    new thrift_server<ExampleIf, ExampleProcessor>(port, io_thread_count, new ExampleHandler()));
-  service->add_and_start_worker_thread(new MainThread());
-  service->run();
+  boost::shared_ptr<thrift_application> application(new thrift_application(io_thread_count));
+  boost::shared_ptr<ExampleIf> handler(new ExampleHandler());
+  boost::shared_ptr<Runnable>  service(
+    new thrift_server<ExampleIf, ExampleProcessor>(application, port, handler));
+
+  application->add_and_start_runnable(service);
+
+  while (true) {
+    // main thread application logic
+    sleep(100);
+  }
   return 0;
 }
