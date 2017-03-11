@@ -1,7 +1,7 @@
 service Example {
   void ping()
-  //bool registerHandler(1:i16 eventPort)
-  //oneway void wait()
+  bool registerHandler(1:i16 eventPort)
+  oneway void wait()
 }
 
 service EventHandler {
