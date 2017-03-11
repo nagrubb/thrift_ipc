@@ -16,6 +16,8 @@ file(GLOB GEN_SOURCES
 
 execute_process(COMMAND thrift --gen cpp ${CMAKE_SOURCE_DIR}/example.thrift)
 execute_process(COMMAND thrift --gen py ${CMAKE_SOURCE_DIR}/example.thrift)
+link_directories("/usr/local/lib/")
+include_directories("/usr/local/include/")
 include_directories(${CMAKE_BINARY_DIR})
 
 add_executable(server
@@ -26,5 +28,5 @@ add_executable(client
   client.cpp
   ${GEN_SOURCES})
 
-target_link_libraries(server thrift thriftnb)
+target_link_libraries(server thrift thriftnb event)
 target_link_libraries(client thrift)
