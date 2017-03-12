@@ -9,10 +9,11 @@
 
 class ExampleHandler : virtual public ExampleIf, public thrift_registable_server<EventHandlerClient>{
 public:
-
   ExampleHandler() {}
 
-  void ping() {}
+  void ping() {
+    printf("Ping\n");
+  }
 
   bool registerHandler(const int16_t event_port) {
     return register_client(event_port);
@@ -31,8 +32,7 @@ public:
   }
 
 private:
-
-  std::list<boost::shared_ptr<EventHandlerClient> >m_clients;
+  std::list<boost::shared_ptr<EventHandlerClient> > m_clients;
   int m_requestNumber = 0;
   int m_clientNumber  = 0;
 };

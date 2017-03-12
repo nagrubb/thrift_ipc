@@ -1,33 +1,20 @@
 #include <iostream>
 
 #include "gen-cpp/Example.h"
-
-#include <thrift/transport/TSocket.h>
-#include <thrift/transport/TBufferTransports.h>
-#include <thrift/protocol/TCompactProtocol.h>
-
-using namespace std;
-using namespace apache::thrift;
-using namespace apache::thrift::protocol;
-using namespace apache::thrift::transport;
+#include "thrift_service.h"
 
 int main(int argc, char **argv) {
-  boost::shared_ptr<TSocket>    socket(new TSocket("localhost", 9090));
-  boost::shared_ptr<TTransport> transport(new TFramedTransport(socket));
-  boost::shared_ptr<TProtocol>  protocol(new TCompactProtocol(transport));
+  uint16_t port = 9090;
 
-  ExampleClient client(protocol);
-
-  transport->open();
+  boost::shared_ptr<thrift_client<ExampleClient> > client(new thrift_client<ExampleClient>(port));
   clock_t begin = clock();
 
-  for (int i = 0; i < 1000; ++i) {
-    client.ping();
+  for (int i = 0; i < 1; ++i) {
+    (*client)->ping();
   }
   clock_t end          = clock();
   double  elapsed_secs = double(end - begin) / (CLOCKS_PER_SEC / 1000);
-  cout << "Elapsed Time: " << elapsed_secs << "ms" << endl;
-  transport->close();
+  std::cout << "Elapsed Time: " << elapsed_secs << "ms" << std::endl;
 
   return 0;
 }

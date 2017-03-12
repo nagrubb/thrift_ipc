@@ -1,5 +1,5 @@
 service Example {
-  void ping()
+  oneway void ping()
   bool registerHandler(1:i16 eventPort)
   oneway void wait()
 }
