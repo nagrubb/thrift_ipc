@@ -42,9 +42,8 @@ int main(int argc, char **argv) {
   uint16_t io_thread_count = 1;
 
   boost::shared_ptr<thrift_application> application(new thrift_application(io_thread_count));
-  boost::shared_ptr<ExampleIf> handler(new ExampleHandler());
-  boost::shared_ptr<Runnable>  service(
-    new thrift_server<ExampleIf, ExampleProcessor>(application, port, handler));
+  boost::shared_ptr<Runnable> service(
+    new thrift_server<ExampleIf, ExampleProcessor>(application, port, new ExampleHandler()));
 
   application->add_and_start_runnable(service);
 

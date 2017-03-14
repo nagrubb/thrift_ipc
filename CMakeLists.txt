@@ -29,4 +29,4 @@ add_executable(client
   ${GEN_SOURCES})
 
 target_link_libraries(server thrift thriftnb event)
-target_link_libraries(client thrift)
+target_link_libraries(client thrift thriftnb event)

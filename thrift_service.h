@@ -77,7 +77,7 @@ private:
 template<class T1, class T2>
 class thrift_server : public Runnable {
 public:
-  thrift_server(boost::shared_ptr<thrift_application> &application, uint16_t port, boost::shared_ptr<T1> &handler) :
+  thrift_server(boost::shared_ptr<thrift_application> &application, uint16_t port, T1 *handler) :
     m_port(port),
     m_handler(handler),
     m_processor(new T2(m_handler)),
@@ -95,7 +95,7 @@ public:
 
 private:
   uint16_t m_port;
-  boost::shared_ptr<T1> &m_handler;
+  boost::shared_ptr<T1> m_handler;
   boost::shared_ptr<TProcessor> m_processor;
   boost::shared_ptr<TTransportFactory> m_transport_factory;
   boost::shared_ptr<TProtocolFactory> m_protocol_factory;
@@ -130,4 +130,14 @@ private:
   boost::shared_ptr<TTransport> m_transport;
   boost::shared_ptr<TProtocol> m_protocol;
   boost::shared_ptr<T> m_client;
+};
+
+template<class T1, class T2, class T3>
+class thrift_async_client : public thrift_client<T1>, public T2, public thrift_server<T2, T3>{
+public:
+  thrift_async_client(boost::shared_ptr<thrift_application> &application, uint16_t server_port, uint16_t client_port) :
+    thrift_server<T2, T3>(application, server_port, this),
+    thrift_client<T1>(client_port) {}
+
+  virtual ~thrift_async_client(void) {}
 };
